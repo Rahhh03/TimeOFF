@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/focusPage.css">
+<title>Countdown Timer</title> 
+</head>
+<body>
+    <div class="navbar"> 
+        <a href="mainPage.html">
+            <img class="navbar-icon" src="./img/feedNav.png" alt="feed">
+        </a>
+        <a href="focusPage.html">
+            <img class="navbar-icon" src="./img/phoneNav.png" alt="focusPage">
+        </a>
+        <a href="profilePage.html">
+            <img class="navbar-icon" src="./img/profileNav.png" alt="profile">
+        </a>
+        <a href="setting.html">
+            <img class="navbar-icon" src="./img/settingNav.png" alt="setting">
+        </a>
+    </div>
+
+    <header>
+        <button class="back-button">←</button>
+    </header>
+    
+    <img src="./img/tree.png" alt="focus">
+    <form action="">
+        <label>What type of work are you doing?</label>
+        <select id="work">
+            <option value="" disabled selected>Select your work</option>
+            <option value="study">study</option>
+            <option value="work">work</option>
+            <option value="meditation">meditation</option>
+            <option value="other">other</option> 
+        </select>
+    <div class="timer-grid">
+        <div class="timer-container">
+            <h2>Focus</h2>
+            <h1 id="countdown1">00:00:00</h1>
+            <select id="durationSelect1">
+                <option value="" disabled selected>Select duration</option>
+                <option value="5">5 minutes</option>
+                <option value="10">10 minutes</option>
+                <option value="25">25 minutes</option>
+                <option value="30">30 minutes</option>
+                <option value="45">45 minutes</option>
+                <option value="60">60 minutes</option>
+            </select>
+            <input type="text" id="timerDescription1" placeholder="Enter description">
+            <br><br>
+            <button type="button" onclick="startTimer(1)">Start Countdown</button>
+            <button type="button" onclick="stopTimer(1)" disabled>Stop Countdown</button>
+        </div>
+        
+        <div class="timer-container">
+            <h2>Break</h2>
+            <h1 id="countdown2">00:00:00</h1>
+            <select id="durationSelect2">
+                <option value="" disabled selected>Select duration</option>
+                <option value="5">5 minutes</option>
+                <option value="10">10 minutes</option>
+                <option value="25">25 minutes</option>
+                <option value="30">30 minutes</option>
+                <option value="45">45 minutes</option>
+                <option value="60">60 minutes</option>
+            </select>
+            <br><br>
+            <button type="button" onclick="startTimer(2)">Start Countdown</button>
+            <button type="button" onclick="stopTimer(2)" disabled>Stop Countdown</button>
+        </div>
+    </div>
+    </form>
+    
+    <div class="description">
+        <p>This timer allows you to set focus and break intervals for optimal productivity.</p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";  
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdkw0xYqRIFizwV7OTWki42LGKKydrO2U",
+            authDomain: "projecttimeoff.firebaseapp.com",
+            databaseURL: "https://projecttimeoff-default-rtdb.firebaseio.com",
+            projectId: "projecttimeoff",
+            storageBucket: "projecttimeoff.appspot.com",
+            messagingSenderId: "199634505534",
+            appId: "1:199634505534:web:0152f630f07b653bfea66f",
+            measurementId: "G-2WY91C4J0F"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+    
+        let countdownInterval1;
+        let countdownInterval2;
+
+
+        window.startTimer = function(timerId) {
+            const durationSelect = document.getElementById(`durationSelect${timerId}`);
+            const selectedOption = durationSelect?.options[durationSelect.selectedIndex];
+            const minutes = parseInt(selectedOption?.value, 10);
+
+            const workSelect = document.getElementById('work');
+            const descriptionInput = document.getElementById('timerDescription1');
+
+            if (!workSelect?.value || isNaN(minutes) || minutes <= 0 || (timerId === 1 && !descriptionInput?.value)) {
+                alert("Please fill in all fields.");
+                return;
+            }
+    
+            const countdownElement = document.getElementById(`countdown${timerId}`);
+            const startButton = document.querySelector(`.timer-container:nth-of-type(${timerId}) button:nth-of-type(1)`);
+            const stopButton = document.querySelector(`.timer-container:nth-of-type(${timerId}) button:nth-of-type(2)`);
+            const selectElement = document.getElementById(`durationSelect${timerId}`);
+
+            if (!countdownElement || !startButton || !stopButton || !selectElement) {
+                alert("Required elements are not available on the page.");
+                return;
+            }
+    
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            selectElement.disabled = true;
+    
+            let seconds = minutes * 60;
+    
+            function updateCountdown() {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+    
+                countdownElement.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    
+                if (seconds > 0) {
+                    seconds--;
+                } else {
+                    countdownElement.textContent = '00:00';
+                    clearInterval(timerId === 1 ? countdownInterval1 : countdownInterval2);
+                    alert(`Timer ${timerId === 1 ? 'Focus' : 'Break'} is finished!`);
+                    startButton.disabled = false;
+                    stopButton.disabled = true;
+                    selectElement.disabled = false;
+    
+
+                    if (timerId === 1) {
+                        startTimer(2);
+                    }
+                }
+            }
+    
+            if (timerId === 1) {
+                clearInterval(countdownInterval1);
+                countdownInterval1 = setInterval(updateCountdown, 1000);
+            } else if (timerId === 2) {
+                clearInterval(countdownInterval2);
+                countdownInterval2 = setInterval(updateCountdown, 1000);
+            }
+    
+            saveDataToStorage();
+        };
+    
+        window.stopTimer = function(timerId) {
+            clearInterval(timerId === 1 ? countdownInterval1 : countdownInterval2);
+            const startButton = document.querySelector(`.timer-container:nth-of-type(${timerId}) button:nth-of-type(1)`);
+            const stopButton = document.querySelector(`.timer-container:nth-of-type(${timerId}) button:nth-of-type(2)`);
+            const selectElement = document.getElementById(`durationSelect${timerId}`);
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            selectElement.disabled = false;
+            location.reload();
+        };
+    
+        function saveDataToStorage() {
+            const work = document.getElementById('work').value;
+            const duration1 = document.getElementById('durationSelect1').value;
+            const description1 = document.getElementById('timerDescription1').value;
+            const duration2 = document.getElementById('durationSelect2').value;
+    
+            const data = {
+                work,
+                duration1,
+                description1,
+                duration2
+            };
+    
+            localStorage.setItem('timerData', JSON.stringify(data));
+    
+
+            push(ref(db, 'timerData'), data)
+                .then(() => {
+                    console.log('Data saved successfully');
+                })
+                .catch((error) => {
+                    console.error('Error saving data: ', error);
+                });
+        }
+    
+        function resetFields() {
+            document.getElementById('work').value = "";
+            document.getElementById('durationSelect1').value = "";
+            document.getElementById('timerDescription1').value = "";
+            document.getElementById('durationSelect2').value = "";
+        }
+    
+        document.querySelector('.back-button').addEventListener('click', () => {
+            location.href = "./mainPage.html";  
+        });
+     
+        window.onload = () => {
+            resetFields();
+        };
+    </script>
+</body>
+</html>

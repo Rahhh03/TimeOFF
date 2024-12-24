@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css"> 
+    <link rel="stylesheet" href="css/register.css">
+    <title>Register</title>
+</head>
+<body>
+    <div class="login-card">
+        <h1 class="text-center mb-4">Time<strong>OFF</strong></h1>
+        <form id="dataForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="username">New username:</label>
+                <input type="text" class="form-control" id="username" placeholder="Enter your username">
+            </div>
+            <div class="form-group">
+                <label for="pass">New password:</label>
+                <input type="password" class="form-control" id="pass" placeholder="Enter your password">
+            </div>
+            <button type="submit" class="btn btn-block">Submit</button>
+            <p class="badge badge-secondary py-1 w-100">Already Have An Account? <span><a href="login.html">Log In</a></span></p>
+        </form>
+    </div>
+    <script type="module" >
+                
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdkw0xYqRIFizwV7OTWki42LGKKydrO2U",
+            authDomain: "projecttimeoff.firebaseapp.com",
+            databaseURL: "https://projecttimeoff-default-rtdb.firebaseio.com",
+            projectId: "projecttimeoff",
+            storageBucket: "projecttimeoff.appspot.com",
+            messagingSenderId: "199634505534",
+            appId: "1:199634505534:web:0152f630f07b653bfea66f",
+            measurementId: "G-2WY91C4J0F"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const dataForm = document.getElementById('dataForm');
+
+        dataForm.addEventListener('submit', (e) => {
+            e.preventDefault();  
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value;
+            const pass = document.getElementById('pass').value;
+
+
+            set(ref(db, "users/" + username), {
+                name: name,
+                email: email,
+                username: username,
+                pass: pass
+            })
+            .then(() => {
+
+                localStorage.setItem('userName', name);
+                localStorage.setItem('userEmail', email);
+                localStorage.setItem('username', username);
+                localStorage.setItem('password', pass); 
+                
+                alert("Data stored successfully!");
+
+                window.location.href = "login.html";
+            })
+            .catch((error) => {
+                alert("Error: " + error.message);
+            });
+        });
+
+    </script>
+</body>
+</html>

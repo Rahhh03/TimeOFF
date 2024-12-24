@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/login.css">
+    <title>Login</title>
+</head>
+<body>
+    <div class="login-card">
+        <h1 class="text-center mb-4">Time<strong>OFF</strong></h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" placeholder="Enter your username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" placeholder="Enter your password">
+            </div>
+            <button type="submit" class="btn btn-block">Login</button>
+            <a href="register.html" class="badge badge-secondary py-1 w-100">Don't Have Account?</a>
+        </form> 
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdkw0xYqRIFizwV7OTWki42LGKKydrO2U",
+            authDomain: "projecttimeoff.firebaseapp.com",
+            databaseURL: "https://projecttimeoff-default-rtdb.firebaseio.com",
+            projectId: "projecttimeoff",
+            storageBucket: "projecttimeoff.appspot.com",
+            messagingSenderId: "199634505534",
+            appId: "1:199634505534:web:0152f630f07b653bfea66f",
+            measurementId: "G-2WY91C4J0F"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+
+            const dbRef = ref(db);
+            get(child(dbRef, `users/${username}`)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    if (userData.pass === password) {
+
+                        localStorage.setItem('userName', userData.name);
+                        localStorage.setItem('userEmail', userData.email);
+                        localStorage.setItem('username', username);
+
+
+                        window.location.href = "mainPage.html";
+                    } else {
+                        alert("Incorrect password");
+                    }
+                } else {
+                    alert("No such user found");
+                }
+            }).catch((error) => {
+                console.error(error);
+            });
+        });
+    </script>
+
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/popper.min.js"></script> 
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/profilePage.css">
+  <title>Profile Page</title> 
+</head>
+<body>
+
+<div class="navbar">
+  <a href="mainPage.html">
+    <img class="navbar-icon" src="./img/feedNav.png" alt="feed">
+  </a>
+  <a href="focusPage.html">
+    <img class="navbar-icon" src="./img/phoneNav.png" alt="focusPage">
+  </a>
+  <a href="profilePage.html">
+    <img class="navbar-icon" src="./img/profileNav.png" alt="profile">
+  </a>
+  <a href="setting.html">
+    <img class="navbar-icon" src="./img/settingNav.png" alt="setting">
+  </a>
+</div>
+
+<div class="content">
+  <div id="editDropdown" class="edit-dropdown">
+    <div class="edit-dropdown-content">
+      <form id="profileForm">
+        <label for="newName">Name:</label>
+        <input type="text" id="newName" name="newName" required>
+        <br><br>
+        <label for="newEmail">Email:</label>
+        <input type="email" id="newEmail" name="newEmail" required>
+        <br><br>
+        <button type="submit">Save</button>
+      </form>
+    </div>
+  </div>
+  <img id="editProfile" class="edit-profile-icon" src="./img/edit.png" alt="edit">
+  <h3 id="userName">User Name</h3>
+  <img id="UserImg" src="./img/user.png" alt="Profile Picture" class="profile-image">
+  <h4>Hours</h4>
+  <h4 id="totalFocusTime">00 h 00 m</h4>
+</div>
+
+<div class="content">
+    <h3>Static</h3>
+    <div class="static-content">
+      <div class="pie-chart-container">
+        <canvas id="workPieChart"></canvas>
+        <div class="description">
+          <p id="pieChartDescription">Click/hover over a segment to see details.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="footer">
+  <p>Time OFF 1.0.0 by S67397</p>
+</div>
+
+<script type="module"> 
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";  
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAdkw0xYqRIFizwV7OTWki42LGKKydrO2U",
+        authDomain: "projecttimeoff.firebaseapp.com",
+        databaseURL: "https://projecttimeoff-default-rtdb.firebaseio.com",
+        projectId: "projecttimeoff",
+        storageBucket: "projecttimeoff.appspot.com",
+        messagingSenderId: "199634505534",
+        appId: "1:199634505534:web:0152f630f07b653bfea66f",
+        measurementId: "G-2WY91C4J0F"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+
+    async function fetchDataAndCreatePieChart() {
+            const dbRef = ref(db);
+            try {
+                const snapshot = await get(child(dbRef, 'timerData'));
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const workCounts = {};
+                    Object.values(data).forEach(entry => {
+                        const workType = entry.work;
+                        if (workType) {
+                            workCounts[workType] = (workCounts[workType] || 0) + 1;
+                        }
+                    });
+
+                    const ctx = document.getElementById('workPieChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: Object.keys(workCounts),
+                            datasets: [{
+                                label: 'Type of Work',
+                                data: Object.values(workCounts),
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Distribution of Work Types'
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.log("No data available");
+                }
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+            }
+        }
+ 
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchDataAndCreatePieChart();
+
+
+            const editProfileIcon = document.getElementById('editProfile');
+            const editDropdown = document.getElementById('editDropdown');
+            const profileForm = document.getElementById('profileForm');
+            const userName = document.getElementById('userName');
+            const newNameInput = document.getElementById('newName');
+            const newEmailInput = document.getElementById('newEmail');
+            const totalFocusTimeElement = document.getElementById('totalFocusTime');
+
+
+            const storedName = localStorage.getItem('userName');
+            const storedEmail = localStorage.getItem('userEmail');
+
+            if (storedName) {
+            userName.textContent = storedName;
+            }
+            if (storedEmail) {
+            newEmailInput.value = storedEmail;
+            }
+
+
+            editProfileIcon.addEventListener('click', function(event) {
+                editDropdown.classList.toggle('active'); 
+                event.stopPropagation();
+            });
+
+
+            profileForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const updatedName = newNameInput.value;
+                const updatedEmail = newEmailInput.value;
+
+                userName.textContent = updatedName;
+
+                localStorage.setItem('userName', updatedName);
+                localStorage.setItem('userEmail', updatedEmail);
+
+                const userId = "user_" + Date.now();  
+                set(ref(db, 'users/' + userId), {
+                    userName: updatedName,
+                    userEmail: updatedEmail
+                })
+                .then(() => {
+                    console.log('Data saved successfully');
+                })
+                .catch((error) => {
+                    console.error('Error saving data: ', error);
+                });
+
+                newNameInput.value = '';
+                newEmailInput.value = '';
+                editDropdown.classList.remove('active');
+            });
+
+            document.addEventListener('click', function(event) {
+                const isClickInsideDropdown = editDropdown.contains(event.target);
+                const isClickOnEditIcon = event.target === editProfileIcon;
+
+                if (!isClickInsideDropdown && !isClickOnEditIcon) {
+                    editDropdown.classList.remove('active');
+                }
+            });
+
+            const dbRef = ref(db);
+            get(child(dbRef, 'timerData'))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    console.log("Data snapshot: ", snapshot.val());  
+                    let totalFocusTime = 0;
+                    snapshot.forEach((dataSnapshot) => {
+                        const data = dataSnapshot.val();
+                        console.log("Data: ", data);  
+                        const duration = parseInt(data.duration1, 10);
+                        if (!isNaN(duration)) {
+                            totalFocusTime += duration;
+                        }
+                });
+
+                console.log("Total Focus Time (minutes): ", totalFocusTime);  
+
+                const hours = Math.floor(totalFocusTime / 60);
+                const minutes = totalFocusTime % 60;
+                totalFocusTimeElement.textContent = `${hours} h ${minutes} m`;
+                } else {
+                    console.log("No data available");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching data: ", error);
+            });
+        });
+</script>
+</body>
+</html>

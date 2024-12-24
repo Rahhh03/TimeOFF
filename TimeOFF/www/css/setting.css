@@ -1,0 +1,113 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin-top: 30px;
+    padding-top: 60px;
+    background: #F6E6CB;
+}
+
+header {
+    background: #E7D4B5;
+    padding: 20px 20px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #A0937D;
+    padding: 5px 0;
+    z-index: 999;
+}
+
+.navbar a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.navbar a:hover {
+    background: rgba(150, 121, 99, 0.6);
+    color: black;
+}
+
+.navbar a.active {
+    background-color: rgba(150, 121, 99, 0.6);
+}
+
+.navbar-icon {
+    width: 30px;
+    height: 30px;
+}
+
+@media (max-width: 992px) {
+    .content {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-icon {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar a {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .navbar-icon {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+.account-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid black;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.account-info p {
+    margin: 0;
+}
+
+.account-info p span {
+    font-weight: bold;
+}
+
+.logout-link {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.section-container {
+    margin-top: 30px;
+    padding-top: 20px;
+}
+
+.section {
+    border: 1px solid black;
+    padding: 10px;
+    margin-bottom: 10px;
+}

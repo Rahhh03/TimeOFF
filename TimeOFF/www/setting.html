@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/setting.css">
+    <title>Header Example</title> 
+    </style>
+</head>
+<body>
+    <header>
+        <h2>More</h2>
+    </header>
+
+    <div class="navbar">
+        <a href="mainPage.html">
+            <img class="navbar-icon" src="./img/feedNav.png" alt="feed">
+        </a>
+        <a href="focusPage.html">
+            <img class="navbar-icon" src="./img/phoneNav.png" alt="focusPage">
+        </a>
+        <a href="profilePage.html">
+            <img class="navbar-icon" src="./img/profileNav.png" alt="profile">
+        </a>
+        <a href="setting.html">
+            <img class="navbar-icon" src="./img/settingNav.png" alt="setting">
+        </a>
+    </div>
+
+    <div class="container pt-3 section-container">
+        <h3>ACCOUNT</h3>
+        <div class="account-info">
+            <p><span>Name:</span> <span id="userName">Loading...</span></p>
+        </div>
+        <div class="account-info">
+            <p><span>Email Address:</span> <span id="userEmail">Loading...</span></p>
+        </div>
+        <div class="logout-link">
+            <p><a href="login.html">Logout</a></p>
+        </div>
+    </div>
+
+    <div class="container pt-3 section-container">
+        <h3>Time OFF</h3>
+        <div class="section">
+            <p>Feedback</p>
+        </div>
+        <div class="section">
+            <p>Rate</p>
+        </div>
+        <div class="section">
+            <p>FAQ</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";  
+        import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdkw0xYqRIFizwV7OTWki42LGKKydrO2U",
+            authDomain: "projecttimeoff.firebaseapp.com",
+            databaseURL: "https://projecttimeoff-default-rtdb.firebaseio.com",
+            projectId: "projecttimeoff",
+            storageBucket: "projecttimeoff.appspot.com",
+            messagingSenderId: "199634505534",
+            appId: "1:199634505534:web:0152f630f07b653bfea66f",
+            measurementId: "G-2WY91C4J0F"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        function fetchUserData(username) {
+            const dbRef = ref(db);
+            get(child(dbRef, `users/${username}`)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    document.getElementById('userName').textContent = userData.name;
+                    document.getElementById('userEmail').textContent = userData.email;
+                } else {
+                    console.log("No data available for username: " + username);
+                }
+            }).catch((error) => {
+                console.error("Error fetching data:", error);
+            });
+        }
+
+        const loggedInUser = localStorage.getItem('username');  
+        if (loggedInUser) {
+            fetchUserData(loggedInUser);
+        } else {
+            console.log("No logged-in user found");
+        }
+    </script>
+</body>
+</html>
